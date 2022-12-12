@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"strconv"
 	"time"
 
@@ -19,9 +19,25 @@ var coldstart = true
 
 func Handle(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	lc, _ := lambdacontext.FromContext(ctx)
-	log.Println("Example function log", lc.AwsRequestID)
-	if (1+rand.Intn(5))%5 == 0 {
+	log.Printf("Example function log %s %v", lc.AwsRequestID, coldstart)
+	var body struct {
+		Sleep bool `json:"sleep"`
+	}
+	err := json.Unmarshal([]byte(req.Body), &body)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       fmt.Sprintf("Hello from go!%s", err),
+			Headers: map[string]string{
+				"coldstart": strconv.FormatBool(coldstart),
+			},
+		}, err
+	}
+	if body.Sleep {
+		log.Println("decided to sleep")
 		time.Sleep(20 * time.Second)
+	} else {
+		log.Println("decided to NOT sleep")
 	}
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 200,

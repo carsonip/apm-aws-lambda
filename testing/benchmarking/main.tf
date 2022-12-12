@@ -24,7 +24,9 @@ locals {
   }
 }
 
-provider "ec" {}
+provider "ec" {
+    apikey = "azRHVjdJUUJBVVV6UlROa2FPMjQ6Mks1Q0RSNlVTMFdHQ0tBMVU4c2Q1UQ=="
+}
 
 provider "aws" {
   region = var.aws_region
